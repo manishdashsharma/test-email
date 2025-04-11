@@ -8,7 +8,7 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
 // MongoDB URI
 const mongoURI =
@@ -21,12 +21,12 @@ console.log('✅ Connected to MongoDB');
 const DynamicSchema = new mongoose.Schema({}, { strict: false });
 const PayloadModel = mongoose.model('Payload', DynamicSchema, 'Emails');
 
-// GET route
+// Routes
 app.get('/', (req, res) => {
   res.send('🚀 Server is up and running!');
 });
 
-// POST route to save incoming payload
+// Save payload
 app.post('/save', async (req, res) => {
   try {
     const finalPayload = req.body;
@@ -41,6 +41,17 @@ app.post('/save', async (req, res) => {
     res.status(201).json({ message: '✅ Data saved', id: savedDoc._id });
   } catch (error) {
     console.error('❌ Error saving data:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Fetch all payloads
+app.get('/all', async (req, res) => {
+  try {
+    const allDocs = await PayloadModel.find({});
+    res.status(200).json(allDocs);
+  } catch (error) {
+    console.error('❌ Error fetching data:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
